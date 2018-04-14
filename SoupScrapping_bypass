@@ -1,0 +1,118 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Apr 12 13:35:33 2018
+
+@author: terencephilippon
+"""
+
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Apr  9 22:45:41 2018
+
+Scraping with beautifullsoup.
+
+@author: terencephilippon
+"""
+
+import bs4
+from urllib.request import urlopen as uReq
+from bs4 import BeautifulSoup as soup
+from urllib.request import Request, urlopen
+import numpy as np
+import pandas as pd
+
+
+my_url = 'https://www.fablabs.io/labs'
+my_url2 = 'https://placestowork.net/amsterdam'
+my_url3 = 'http://barcelonanavigator.com/barcelona-co-working-spaces/'
+url_makery = 'http://www.makery.info/api/labs/'
+
+# =============================================================================
+# Import and scrap web page.
+# =============================================================================
+
+#Import the whole page.
+req = Request(url_makery, headers={'User-Agent': 'Mozilla/5.0'})
+webpage = urlopen(req).read()
+
+#html parsing
+page_soup = soup(webpage, "html.parser")
+
+#Import all similar data:
+#Import coworking names and then data.
+names = page_soup.article.section.findAll("h2")
+data = page_soup.article.section.findAll("p")
+
+my_array = np.empty([len(names),len(data)+1], dtype=object)
+
+i = 0
+cl = 1
+for j in data:
+    text = j.get_text()
+    my_array[i,cl] = text
+
+
+#Import parts of the full data previously imported.
+container = containers[0]
+
+#Numpy array
+my_array = np.empty([124,4], dtype=object)
+
+j = 0
+
+while j <= 3:
+    
+    i = 0
+    print("j = ", j)
+    
+    while i <= (len(containers) - 1):
+        
+        container = containers[i]
+        if j == 0:
+            my_array[i,j] = container.a.span["data-name"]
+        if j == 1:
+            my_array[i,j] = container.a.span["data-lat"]
+        if j == 2:
+            my_array[i,j] = container.a.span["data-lng"]
+        if j == 3:
+            my_array[i,j] = container.a.span["data-street"]
+        
+        print("i = ", i)
+        i += 1
+        
+    j += 1        
+    
+df = pd.DataFrame(my_array)
+df.to_csv('/Users/terencephilippon/Desktop/Amsterdam_scrap.csv')
+
+# =============================================================================
+# ####### Alternate if blocked by server #######
+# =============================================================================
+req = Request('https://www.fablabs.io/labs', headers={'User-Agent': 'Mozilla/5.0'})
+webpage = urlopen(req).read()
+
+page_soup = soup(webpage, "html.parser")
+
+#### testeur
+my_url = 'http://www.seloger.com/list.htm?tri=initial&idtypebien=2,1&idtt=2,5&naturebien=1,2,4&ci=60088&LISTING-LISTpg=7'
+
+req = Request(my_url, headers={'User-Agent': 'Mozilla/5.0'})
+webpage = urlopen(req).read()
+
+page_soup = soup(webpage, "html.parser")
+
+dd = page_soup.div.a.findAll("c-pa-link link_AB")
+#### testeur
+
+decoded_response = page_soup.read().decode("UTF-8")
+
+
+
+data= json.load(open(webpage))
+
+
+
+
+
